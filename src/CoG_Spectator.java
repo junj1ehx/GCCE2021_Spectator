@@ -167,17 +167,42 @@ public class CoG_Spectator implements AIInterface {
 					distanceMin = distance;
 				}
 				
+
+				
 				float scoreValue = 1.0f - 
 						( (((float)myCharacter.getHp() + (float)oppCharacter.getHp())/ 400.0f) * (1.0f - (float)(this.frameData.getRemainingTimeMilliseconds() / 60000)));
 				
 				float distanceValue = 1.0f - distance / distanceMax;
-				
+		
+		
+				double actRank = 0.0;
+				Action fAct = this.frameData.getCharacter(!playerNumber).getAction();
+				int maxEng = Math.abs(oppMotion.get(Action.STAND_D_DF_FC.ordinal()).getAttackStartAddEnergy());
+					int startEng = Math.abs(oppMotion.get(Action.valueOf(fAct.name()).ordinal()).getAttackStartAddEnergy());
+					int damage = oppMotion.get(Action.valueOf(fAct.name()).ordinal()).getAttackHitDamage();
+
+					if(frameData.getCharacter(true).getEnergy() < maxEng){
+						if(startEng == 0){
+							actRank = 1.0;
+						}else{
+							actRank = 0.0;
+						}
+					}else{
+						if(startEng == 0 || damage <= 30){
+							actRank = 0.0;
+						}else{
+							actRank = (double)damage/startEng;
+						}
+					}
+
+				//System.out.println("fAct=" + fAct + " maxEng=" + maxEng + " startEng=" + startEng + " damage=" + damage + " actRank=" + actRank);				
+
+					
 				current = (float) ( scoreValue
-						+ distanceValue + actionValue
+						+ distanceValue + (float)actRank
 						) / 3.0f;
 				
-				//System.out.println("current=" + current + " score=" + scoreValue + " distance=" + distanceValue + " action=" + actionValue);				
-				this.frameData.getCharacter(!playerNumber).getAction().name();
+				//System.out.println("current=" + current + " score=" + scoreValue + " distance=" + distanceValue + " action=" + actRank);				
 				
 				tts.gain = 0.0f;
 				tts.pitch = 0.0f;				
@@ -241,17 +266,18 @@ public class CoG_Spectator implements AIInterface {
 //			opponentPreviousMove = opponentCurrentMove;
 			opponentCurrentMove = ttsSkillMap.getActionRealName(this.frameData.getCharacter(!playerNumber).getAction().name());
 			
-			if (opponentCurrentMove == "Ultimate Hadouken"){
-				actionValue = 1.0f;
-			} else if (opponentCurrentMove == "Super Uppercut"){
-				actionValue = 0.5f;
-			} else if (opponentCurrentMove == "Slide Kick"){
-				actionValue = 0.25f;
-			} else if (opponentCurrentMove == "Super Hadouken"){
-				actionValue = 0.125f;		
-			} else {
-				actionValue = 0.0f;
-			}
+			//Ishii CoG 2019
+//			if (opponentCurrentMove == "Ultimate Hadouken"){
+//				actionValue = 1.0f;
+//			} else if (opponentCurrentMove == "Super Uppercut"){
+//				actionValue = 0.5f;
+//			} else if (opponentCurrentMove == "Slide Kick"){
+//				actionValue = 0.25f;
+//			} else if (opponentCurrentMove == "Super Hadouken"){
+//				actionValue = 0.125f;		
+//			} else {
+//				actionValue = 0.0f;
+//			}
 
 			if (isSpeaking) {
 				if (!opponentCurrentMove.contains("Default")){		
